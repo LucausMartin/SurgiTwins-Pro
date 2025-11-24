@@ -16,7 +16,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
 from PySide2.QtWidgets import *
 
 
-class Ui_Form(object):
+class LoginUI(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
@@ -85,6 +85,7 @@ class Ui_Form(object):
         self.lineEdit_2.setObjectName(u"lineEdit_2")
         self.lineEdit_2.setGeometry(QRect(194, 504, 411, 51))
         self.lineEdit_2.setFont(font4)
+        self.lineEdit_2.setEchoMode(QLineEdit.Password)
         self.lineEdit_2.setStyleSheet(u"border: 1px solid #DCD7D7;\n"
 "border-radius: 10px;\n"
 "padding: 10px;\n"
