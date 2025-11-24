@@ -1,0 +1,2 @@
+include versioneer.py
+include scikit-surgerytutorial01/_version.py
