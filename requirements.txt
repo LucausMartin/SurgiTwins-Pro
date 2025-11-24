@@ -1,0 +1,10 @@
+# This file lists the python packages that your software depends on
+# for development.
+# It is used by pip to manage software dependencies. It is not to be
+# confused with the software requirements, which are listed in
+# doc/requirements.rst
+numpy>=1.17.4
+PySide2
+scikit-surgerycore>=0.1.7
+scikit-surgeryutils>=1.2.0
+scikit-surgeryarucotracker>= 0.2.7
