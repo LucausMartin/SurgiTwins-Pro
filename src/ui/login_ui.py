@@ -20,7 +20,7 @@ class LoginUI(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(1000, 800)
+        Form.resize(1450, 800)
         Form.setMinimumSize(QSize(900, 600))  # Increased minimum width to ensure title visibility
         font = QFont()
         font.setFamily(u"\u5fae\u8f6f\u96c5\u9ed1")
@@ -34,7 +34,7 @@ class LoginUI(object):
         # Left side - login form
         self.left_widget = QWidget(Form)
         self.left_widget.setMinimumWidth(450)  # Ensure minimum width for title
-        self.left_widget.setMaximumWidth(500)  # Prevent excessive width
+        self.left_widget.setMaximumWidth(700)  # Prevent excessive width
         self.left_layout = QVBoxLayout(self.left_widget)
         self.left_layout.setAlignment(Qt.AlignTop)  # Keep content at top, prevent vertical expansion
 
@@ -78,7 +78,6 @@ class LoginUI(object):
         self.label_3.setFont(font2)
         self.label_3.setStyleSheet(u"color: #404040;\n"
 "font-weight: 600;")
-        self.label_3.setWordWrap(True)
         # Add title section to left layout
         self.left_layout.addWidget(self.title_widget)
         self.left_layout.addWidget(self.label_3)
@@ -108,6 +107,7 @@ class LoginUI(object):
 "padding: 10px;\n"
 "background-color: #ffffff;")
         self.lineEdit.setMinimumHeight(51)
+        self.lineEdit.setMaximumWidth(400)  # Set maximum width
         self.left_layout.addWidget(self.lineEdit)
         self.left_layout.addSpacing(20)
 
@@ -127,6 +127,7 @@ class LoginUI(object):
 "padding: 10px;\n"
 "background-color: #ffffff;")
         self.lineEdit_2.setMinimumHeight(51)
+        self.lineEdit_2.setMaximumWidth(400)  # Set maximum width
         self.left_layout.addWidget(self.lineEdit_2)
         self.left_layout.addSpacing(20)
 
@@ -156,6 +157,7 @@ class LoginUI(object):
 "border-radius: 10px;\n"
 "font-size: 16px")
         self.pushButton.setMinimumHeight(51)
+        self.pushButton.setMaximumWidth(300)  # Set maximum width smaller than input fields
         self.left_layout.addWidget(self.pushButton)
         self.left_layout.addSpacing(20)
 
@@ -223,7 +225,7 @@ class LoginUI(object):
     # setupUi
 
     def on_resize(self, event):
-        """Handle window resize to maintain image aspect ratio"""
+        """Handle window resize to maintain image aspect ratio and control text wrapping"""
         # Get current window size
         window_width = self.label_8.width()
         window_height = self.label_8.height()
@@ -236,12 +238,25 @@ class LoginUI(object):
         scaled_pixmap = self.original_pixmap.scaled(target_size, target_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.label_8.setPixmap(scaled_pixmap)
 
+        # Control label_3 word wrap based on available width
+        # Estimate text width for "The Intelligent Surgical Digital Twin Platform" at 21pt font
+        # Approximate width calculation: ~60 characters * ~15px per character = ~900px
+        text_estimated_width = 900
+        # Available width for label_3 is the actual width of the label itself
+        available_width = self.label_3.width()
+
+        # Enable word wrap only when available width is less than estimated text width
+        if available_width < text_estimated_width:
+            self.label_3.setWordWrap(True)
+        else:
+            self.label_3.setWordWrap(False)
+
         # Call the original resize event
         if hasattr(self, 'form'):
             QWidget.resizeEvent(self.form, event)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"SurgiTwins Pro", None))
         self.label.setText(QCoreApplication.translate("Form", u"SurgiTwins", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Pro", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"The Intelligent Surgical Digital Twin Platform", None))

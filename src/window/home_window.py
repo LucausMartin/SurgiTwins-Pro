@@ -5,66 +5,88 @@ from ui.home_ui import HomeUI
 from utils.auth_manager import AuthManager
 
 class HomeWindow(QWidget):
-  def __init__(self):
+  def __init__(self, username=None):
     super().__init__()
     self.ui = HomeUI()
     self.ui.setupUi(self)
     self.auth_manager = AuthManager()
 
-    # 连接登录按钮的点击事件（在home窗口中可能不需要，可以注释掉）
-    # self.ui.pushButton.clicked.connect(self.handle_login)
-    # 连接回车键事件（可选）
-    # self.ui.lineEdit_2.returnPressed.connect(self.handle_login)
+    # 设置用户名显示
+    if username:
+        self.ui.set_user_name(username)
+    else:
+        # 如果没有传入用户名，尝试从保存的登录信息中获取
+        saved_info = self.auth_manager.get_saved_login_info()
+        if saved_info["real_name"]:
+            self.ui.set_user_name(saved_info["real_name"])
 
-    # 添加退出登录按钮
-    self.logout_button = QPushButton("退出登录", self)
-    self.logout_button.setGeometry(1400, 50, 100, 40)
-    self.logout_button.setStyleSheet("""
-        QPushButton {
-            background-color: #FF4444;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 12px;
+        # 创建下拉菜单
+        self.create_dropdown_menu()
+
+        # 连接头像和用户名的点击事件
+        self.ui.user_avatar_label.mousePressEvent = self.show_dropdown_menu
+        self.ui.user_name_label.mousePressEvent = self.show_dropdown_menu
+
+  def create_dropdown_menu(self):
+    """创建下拉菜单"""
+    from PySide2.QtWidgets import QMenu, QAction
+
+    self.dropdown_menu = QMenu(self)
+    self.dropdown_menu.setStyleSheet("""
+        QMenu {
+            background-color: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+            padding: 4px;
+            min-width: 140px;
         }
-        QPushButton:hover {
-            background-color: #CC3333;
+        QMenu::item {
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-family: "微软雅黑";
+            font-size: 14px;
+            margin: 1px;
+            background-color: #4200FF;
+            color: white;
+            text-align: center;
+            min-width: 130px;
+            min-height: 24px;
+        }
+        QMenu::item:selected {
+            background-color: #3500D0;
         }
     """)
-    self.logout_button.clicked.connect(self.handle_logout)
-    
-  # 处理登录按钮点击事件（在home窗口中可能不需要，可以注释掉）
-  # def handle_login(self):
-  #   valid_users = {
-  #     "admin": "123456",
-  #     "user": "password",
-  #     "surgitwins": "pro2024"
-  #   }
-  #   # 验证是否存在账号
-  #   def validate_username(username):
-  #     return username in valid_users
-  #
-  #   # 已经存在的账号密码是否匹配
-  #   def validate_credentials(username, password):
-  #     return valid_users.get(username) == password
-  #
-  #   username = self.ui.lineEdit.text().strip()
-  #   password = self.ui.lineEdit_2.text().strip()
-  #   # 简单的验证逻辑
-  #   if not username or not password:
-  #     QMessageBox.warning(self, "输入错误", "请输入账号和密码！")
-  #     return
-  #
-  #   # 这里可以添加您的验证逻辑
-  #   if validate_username(username) and validate_credentials(username, password):
-  #     QMessageBox.information(self, "登录成功", f"欢迎，{username}！")
-  #     # 登录成功后的操作，比如打开主窗口等
-  #   else:
-  #     if validate_username(username):
-  #       QMessageBox.critical(self, "登录失败", "密码错误！")
-  #     else:
-  #       QMessageBox.critical(self, "登录失败", "账号不存在！")
+
+    # 添加退出登录选项
+    logout_action = QAction("退出登录", self)
+    logout_action.triggered.connect(self.handle_logout)
+    self.dropdown_menu.addAction(logout_action)
+
+  def show_dropdown_menu(self, event):
+    """显示下拉菜单"""
+    # 计算菜单显示位置（在头像下方，并确保不超出窗口）
+    global_pos = self.ui.user_avatar_label.mapToGlobal(self.ui.user_avatar_label.rect().bottomLeft())
+
+    # 获取窗口尺寸和位置
+    window_geometry = self.geometry()
+    menu_size = self.dropdown_menu.sizeHint()
+
+    # 计算相对于窗口的位置
+    window_right = window_geometry.x() + window_geometry.width()
+
+    # 如果菜单会超出窗口右侧，调整到左侧显示
+    if global_pos.x() + menu_size.width() > window_right:
+        # 计算头像右侧位置
+        avatar_right = self.ui.user_avatar_label.mapToGlobal(self.ui.user_avatar_label.rect().bottomRight()).x()
+        # 将菜单位置调整到头像左侧
+        global_pos.setX(avatar_right - menu_size.width())
+
+    # 如果菜单会超出屏幕底部，调整到上方显示
+    screen_geometry = self.screen().availableGeometry()
+    if global_pos.y() + menu_size.height() > screen_geometry.bottom():
+        global_pos.setY(global_pos.y() - self.ui.user_avatar_label.height() - menu_size.height())
+
+    self.dropdown_menu.exec_(global_pos)
 
   def handle_logout(self):
     """处理退出登录"""

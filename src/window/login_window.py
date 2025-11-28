@@ -11,18 +11,7 @@ class LoginWindow(QWidget):
     self.ui = LoginUI()
     self.ui.setupUi(self)
     self.auth_manager = AuthManager()
-
-    # 连接登录按钮的点击事件
-    self.ui.pushButton.clicked.connect(self.handle_login)
-    # 连接回车键事件（可选）
-    self.ui.lineEdit_2.returnPressed.connect(self.handle_login)
-
-    # 检查是否有保存的登录信息
-    self.check_saved_login()
-    
-  # 处理登录按钮点击事件
-  def handle_login(self):
-    valid_users = {
+    self.valid_users = {
       "admin": {
         "name": "管理员",
         "password": "123456"
@@ -36,13 +25,24 @@ class LoginWindow(QWidget):
         "password": "pro2024"
       }
     }
+
+    # 连接登录按钮的点击事件
+    self.ui.pushButton.clicked.connect(self.handle_login)
+    # 连接回车键事件（可选）
+    self.ui.lineEdit_2.returnPressed.connect(self.handle_login)
+
+    # 检查是否有保存的登录信息
+    self.check_saved_login()
+    
+  # 处理登录按钮点击事件
+  def handle_login(self):
     # 验证是否存在账号
     def validate_username(username):
-      return username in valid_users
+      return username in self.valid_users
     
     # 已经存在的账号密码是否匹配
     def validate_credentials(username, password):
-      return valid_users.get(username).get("password") == password
+      return self.valid_users.get(username).get("password") == password
   
     username = self.ui.lineEdit.text().strip()
     password = self.ui.lineEdit_2.text().strip()
@@ -53,10 +53,11 @@ class LoginWindow(QWidget):
     
     # 这里可以添加您的验证逻辑
     if validate_username(username) and validate_credentials(username, password):
-      QMessageBox.information(self, "登录成功", f"欢迎，{valid_users.get(username).get('name')}！")
+      QMessageBox.information(self, "登录成功", f"欢迎，{self.valid_users.get(username).get('name')}！")
       # 保存登录信息
       remember_me = self.ui.checkBox.isChecked()
-      self.auth_manager.save_login_info(username, remember_me)
+      real_name = self.valid_users.get(username, {}).get("name", username)
+      self.auth_manager.save_login_info(username, remember_me, real_name)
       # 登录成功后的操作，比如打开主窗口等
       self.open_main_window()
     else:
@@ -66,7 +67,14 @@ class LoginWindow(QWidget):
         QMessageBox.critical(self, "登录失败", "账号不存在！")
 
   def open_main_window(self):
-    self.main_window = HomeWindow()
+    username = self.ui.lineEdit.text().strip()
+
+    if username in self.valid_users:
+        real_name = self.valid_users[username]["name"]
+    else:
+        real_name = username  # 如果不在预定义列表中，使用账号ID
+
+    self.main_window = HomeWindow(real_name)
     self.main_window.show()
     self.close()  # 关闭登录界面
 

@@ -10,7 +10,7 @@ class AuthManager:
         self.config_dir = os.path.dirname(os.path.abspath(__file__))
         self.config_path = os.path.join(self.config_dir, self.config_file)
 
-    def save_login_info(self, username, remember_me=False):
+    def save_login_info(self, username, remember_me=False, real_name=None):
         """保存登录信息到JSON文件"""
         try:
             config_data = self._load_config()
@@ -19,6 +19,7 @@ class AuthManager:
                 # 保存登录信息
                 config_data["login_info"] = {
                     "username": username,
+                    "real_name": real_name or username,  # 保存真实姓名，如果没有则使用账号ID
                     "remember_me": True,
                     "last_login": datetime.now().isoformat()
                 }
@@ -51,6 +52,7 @@ class AuthManager:
                             if datetime.now() - last_login <= timedelta(days=30):
                                 return {
                                     "username": login_info.get("username", ""),
+                                    "real_name": login_info.get("real_name", login_info.get("username", "")),
                                     "remember_me": True
                                 }
                         except ValueError:
@@ -58,13 +60,14 @@ class AuthManager:
                     else:
                         return {
                             "username": login_info.get("username", ""),
+                            "real_name": login_info.get("real_name", login_info.get("username", "")),
                             "remember_me": True
                         }
 
-            return {"username": "", "remember_me": False}
+            return {"username": "", "real_name": "", "remember_me": False}
         except Exception as e:
             print(f"获取登录信息失败: {e}")
-            return {"username": "", "remember_me": False}
+            return {"username": "", "real_name": "", "remember_me": False}
 
     def clear_login_info(self):
         """清除保存的登录信息"""
