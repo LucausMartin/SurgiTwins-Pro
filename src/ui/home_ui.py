@@ -170,7 +170,10 @@ class HomeUI(object):
         # Section 1
         self.section1 = QWidget(self.right_content)
         self.section1.setObjectName(u"section1")
-        self.section1.setStyleSheet(u"background-color: #E8F4FD; border-radius: 8px;")
+        self.section1.setStyleSheet(u"""
+            background-color: #E8F4FD;
+            border-radius: 8px;
+        """)
         self.section1_layout = QVBoxLayout(self.section1)
         self.section1_layout.setSpacing(0)
         self.section1_layout.setContentsMargins(15, 15, 15, 15)
@@ -205,7 +208,7 @@ class HomeUI(object):
         # Section 1 content
         self.section1_content = QWidget(self.section1)
         self.section1_content.setObjectName(u"section1_content")
-        self.section1_content.setStyleSheet(u"background-color: #D4E8FF; border-radius: 6px; margin-top: 10px;")
+        self.section1_content.setStyleSheet(u"background-color: #D4E8FF; border-radius: 6px; margin-top: 10px; border: none;")
         self.section1_content_layout = QVBoxLayout(self.section1_content)
         self.section1_content_layout.setContentsMargins(10, 10, 10, 10)
 
@@ -316,10 +319,59 @@ class HomeUI(object):
         self.section3_layout.addWidget(self.section3_header)
         self.section3_layout.addWidget(self.section3_content)
 
+        # Section 4
+        self.section4 = QWidget(self.right_content)
+        self.section4.setObjectName(u"section4")
+        self.section4.setStyleSheet(u"background-color: #F0F0FF; border-radius: 8px;")
+        self.section4_layout = QVBoxLayout(self.section4)
+        self.section4_layout.setSpacing(0)
+        self.section4_layout.setContentsMargins(15, 15, 15, 15)
+
+        # Section 4 header
+        self.section4_header = QWidget(self.section4)
+        self.section4_header.setObjectName(u"section4_header")
+        self.section4_header_layout = QHBoxLayout(self.section4_header)
+        self.section4_header_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.section4_title = QLabel(self.section4_header)
+        self.section4_title.setObjectName(u"section4_title")
+        self.section4_title.setFont(font_section)
+        self.section4_title.setStyleSheet(u"color: #404040;")
+        self.section4_title.setCursor(Qt.PointingHandCursor)
+
+        self.section4_expand_icon = QLabel(self.section4_header)
+        self.section4_expand_icon.setObjectName(u"section4_expand_icon")
+        self.section4_expand_icon.setFixedSize(16, 16)
+        self.section4_expand_icon.setPixmap(expand_pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.section4_expand_icon.setCursor(Qt.PointingHandCursor)
+
+        self.section4_header_layout.addWidget(self.section4_title)
+        self.section4_header_layout.addStretch()
+        self.section4_header_layout.addWidget(self.section4_expand_icon)
+
+        # Section 4 content
+        self.section4_content = QWidget(self.section4)
+        self.section4_content.setObjectName(u"section4_content")
+        self.section4_content.setStyleSheet(u"background-color: #D8D8FF; border-radius: 6px; margin-top: 10px;")
+        self.section4_content_layout = QVBoxLayout(self.section4_content)
+        self.section4_content_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Add sample content
+        self.section4_sample = QLabel(self.section4_content)
+        self.section4_sample.setObjectName(u"section4_sample")
+        self.section4_sample.setText(u"Section 4 内容区域\n\n这是 Section 4 的详细内容\n• 工具 1\n• 工具 2\n• 工具 3\n• 工具 4\n• 工具 5\n• 工具 6\n• 工具 7\n• 工具 8\n• 工具 9\n• 工具 10")
+        self.section4_sample.setStyleSheet(u"color: #404040;")
+        self.section4_sample.setWordWrap(True)
+        self.section4_content_layout.addWidget(self.section4_sample)
+
+        self.section4_layout.addWidget(self.section4_header)
+        self.section4_layout.addWidget(self.section4_content)
+
         # Add sections to right layout
         self.right_content_layout.addWidget(self.section1)
         self.right_content_layout.addWidget(self.section2)
         self.right_content_layout.addWidget(self.section3)
+        self.right_content_layout.addWidget(self.section4)
         self.right_content_layout.addStretch()  # Push sections to the top
 
         # Connect click events
@@ -329,6 +381,8 @@ class HomeUI(object):
         self.section2_expand_icon.mousePressEvent = lambda event: self.toggle_section2()
         self.section3_title.mousePressEvent = lambda event: self.toggle_section3()
         self.section3_expand_icon.mousePressEvent = lambda event: self.toggle_section3()
+        self.section4_title.mousePressEvent = lambda event: self.toggle_section4()
+        self.section4_expand_icon.mousePressEvent = lambda event: self.toggle_section4()
 
         # Set scroll area widget
         self.right_scroll_area.setWidget(self.right_content)
@@ -400,6 +454,19 @@ class HomeUI(object):
             expand_pixmap = QPixmap(u"./img/Icon_angle-down.png")
             self.section3_expand_icon.setPixmap(expand_pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
+    def toggle_section4(self):
+        """切换 Section 4 的展开/折叠状态"""
+        if self.section4_content.isVisible():
+            self.section4_content.hide()
+            # 旋转图标为折叠状态
+            expand_pixmap = QPixmap(u"./img/Icon_angle-down.png")
+            self.section4_expand_icon.setPixmap(expand_pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        else:
+            self.section4_content.show()
+            # 旋转图标为展开状态
+            expand_pixmap = QPixmap(u"./img/Icon_angle-down.png")
+            self.section4_expand_icon.setPixmap(expand_pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"SurgiTwins Pro", None))
         self.surgitwins_label.setText(QCoreApplication.translate("Form", u"SurgiTwins", None))
@@ -408,5 +475,6 @@ class HomeUI(object):
         self.section1_title.setText(QCoreApplication.translate("Form", u"Section 1", None))
         self.section2_title.setText(QCoreApplication.translate("Form", u"Section 2", None))
         self.section3_title.setText(QCoreApplication.translate("Form", u"Section 3", None))
+        self.section4_title.setText(QCoreApplication.translate("Form", u"Section 4", None))
     # retranslateUi
 
