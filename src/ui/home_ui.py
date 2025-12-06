@@ -27,6 +27,88 @@ class ClippedSection(QFrame):
         self.setMask(region)
 
 
+class SliderWidget(QWidget):
+    """自定义滑轨和滑块控件"""
+    def __init__(self, label, min_value, max_value, default_value, unit="", parent=None):
+        super().__init__(parent)
+        self.label = label
+        self.min_value = min_value
+        self.max_value = max_value
+        self.unit = unit
+        self.setup_ui()
+        self.set_value(default_value)
+
+    def setup_ui(self):
+        """设置UI布局"""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 2, 0, 2)  # 减小上下边距
+        layout.setSpacing(2)  # 减小间距
+
+        # 上方：属性标签和数值显示（水平排列）
+        self.top_widget = QWidget()
+        top_layout = QHBoxLayout(self.top_widget)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(0)  # 文字间距为0
+
+        # 左侧：属性标签
+        self.label_widget = QLabel(self.label)
+        self.label_widget.setStyleSheet(u"color: #707070; font-size: 16px; font-weight: 400; font-family: \"微软雅黑\";")
+        top_layout.addWidget(self.label_widget)
+
+        # 中间：弹簧
+        top_layout.addStretch()
+
+        # 右侧：数值显示
+        self.value_widget = QLabel()
+        self.value_widget.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.value_widget.setStyleSheet(u"color: #707070; font-size: 16px; font-weight: 400; font-family: \"微软雅黑\";")
+        top_layout.addWidget(self.value_widget)
+
+        layout.addWidget(self.top_widget)
+
+        # 下方：滑轨
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setMinimum(self.min_value)
+        self.slider.setMaximum(self.max_value)
+        self.slider.setFixedHeight(20)
+        self.slider.setStyleSheet(u"""
+            QSlider::groove:horizontal {
+                background: #E5E7EB;
+                height: 8px;
+                border-radius: 4px;
+            }
+            QSlider::handle:horizontal {
+                background: #4200FF;
+                width: 16px;
+                height: 16px;
+                margin: -4px 0;
+                border-radius: 8px;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #5A1AFF;
+            }
+            QSlider::handle:horizontal:pressed {
+                background: #2E00CC;
+            }
+        """)
+        layout.addWidget(self.slider)
+
+        # 连接信号
+        self.slider.valueChanged.connect(self.update_value_display)
+
+    def set_value(self, value):
+        """设置滑块值"""
+        self.slider.setValue(value)
+
+    def get_value(self):
+        """获取当前值"""
+        return self.slider.value()
+
+    def update_value_display(self, value):
+        """更新数值显示"""
+        self.value_widget.setText(f"{value}{self.unit}")
+
+
 class HomeUI(object):
     def setupUi(self, Form):
         if not Form.objectName():
@@ -247,17 +329,42 @@ class HomeUI(object):
         # Section 1 content
         self.section1_content = QWidget(self.section1)
         self.section1_content.setObjectName(u"section1_content")
-        self.section1_content.setStyleSheet(u"margin: 10px; border: none;")
+        self.section1_content.setStyleSheet(u"margin: 5px; border: none;")
         self.section1_content_layout = QVBoxLayout(self.section1_content)
         self.section1_content_layout.setContentsMargins(10, 10, 10, 10)
 
-        # Add sample content
-        self.section1_sample = QLabel(self.section1_content)
-        self.section1_sample.setObjectName(u"section1_sample")
-        self.section1_sample.setText(u"Section 1 内容区域\n\n这是 Section 1 的详细内容\n• 项目 1\n• 项目 2\n• 项目 3\n• 项目 4\n• 项目 5\n• 项目 6\n• 项目 7\n• 项目 8\n• 项目 9\n• 项目 10")
-        self.section1_sample.setStyleSheet(u"color: #404040;")
-        self.section1_sample.setWordWrap(True)
-        self.section1_content_layout.addWidget(self.section1_sample)
+        # Add slider controls for brightness, contrast, and sharpness
+        self.brightness_slider_widget = self.create_slider_widget("Brightness", 0, 100, 50, "%")
+        self.contrast_slider_widget = self.create_slider_widget("Contrast", 0, 100, 50, "%")
+        self.sharpness_slider_widget = self.create_slider_widget("Overlay Opacity", 0, 100, 50)
+
+        self.section1_content_layout.addWidget(self.brightness_slider_widget)
+        self.section1_content_layout.addWidget(self.contrast_slider_widget)
+        self.section1_content_layout.addWidget(self.sharpness_slider_widget)
+
+        # 添加按钮
+        self.apply_button = QPushButton("Reset Parameters")
+        self.apply_button.setStyleSheet(u"""
+            QPushButton {
+                background-color: #FFFFFF;
+                border: 1px solid #CCCCCC;
+                border-radius: 8px;
+                color: #404040;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                padding: 0;
+            }
+            QPushButton:hover {
+                background-color: #F0F0F0;
+            }
+            QPushButton:pressed {
+                background-color: #E0E0E0;
+            }
+        """)
+        self.apply_button.setFixedHeight(50)
+
+        self.section1_content_layout.addWidget(self.apply_button)
+        self.section1_content_layout.addStretch()
 
         self.section1_layout.addWidget(self.section1_header)
         self.section1_layout.addWidget(self.section1_content)
@@ -547,6 +654,10 @@ class HomeUI(object):
     def set_user_name(self, username):
         """设置用户名显示"""
         self.user_name_label.setText(username)
+
+    def create_slider_widget(self, label, min_value, max_value, default_value, unit=""):
+        """创建滑轨和滑块控件"""
+        return SliderWidget(label, min_value, max_value, default_value, unit)
 
     def toggle_section1(self):
         """切换 Section 1 的展开/折叠状态"""
