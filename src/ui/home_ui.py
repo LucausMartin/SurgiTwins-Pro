@@ -432,17 +432,172 @@ class HomeUI(object):
         # Section 2 content
         self.section2_content = QWidget(self.section2)
         self.section2_content.setObjectName(u"section2_content")
-        self.section2_content.setStyleSheet(u"margin: 10px; border: none;")
+        self.section2_content.setStyleSheet(u"border: none;")
         self.section2_content_layout = QVBoxLayout(self.section2_content)
         self.section2_content_layout.setContentsMargins(10, 10, 10, 10)
+        self.section2_content_layout.setSpacing(0)
 
-        # Add sample content
-        self.section2_sample = QLabel(self.section2_content)
-        self.section2_sample.setObjectName(u"section2_sample")
-        self.section2_sample.setText(u"Section 2 内容区域\n\n这是 Section 2 的详细内容\n• 功能 A\n• 功能 B\n• 功能 C\n• 功能 D\n• 功能 E\n• 功能 F\n• 功能 G\n• 功能 H\n• 功能 I\n• 功能 J")
-        self.section2_sample.setStyleSheet(u"color: #404040;")
-        self.section2_sample.setWordWrap(True)
-        self.section2_content_layout.addWidget(self.section2_sample)
+        # 上方：三个横向排列的 tab 选项
+        self.tab_widget = QWidget()
+        self.tab_widget.setStyleSheet(u"background-color: #F0F0F0; border-radius: 10px; padding: 0;")
+        self.tab_layout = QHBoxLayout(self.tab_widget)
+        self.tab_layout.setContentsMargins(5, 5, 5, 5)  # tab 与背景之间的间距
+        self.tab_layout.setSpacing(0)  # tab 之间无间隔
+
+        self.tab1_button = QPushButton("Manual")
+        self.tab1_button.setFixedHeight(40)
+        self.tab2_button = QPushButton("Voice")
+        self.tab2_button.setFixedHeight(40)
+        self.tab3_button = QPushButton("BCI")
+        self.tab3_button.setFixedHeight(40)
+
+        # 设置 tab 按钮样式
+        tab_normal_style = u"""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+                border-radius: 8px;
+                color: #404040;
+                margin: 0px;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                font-weight: 400;
+                padding: 8px 0;
+            }
+            QPushButton:hover {
+                background-color: #E8E8E8;
+            }
+        """
+        tab_selected_style = u"""
+            QPushButton {
+                background-color: #4200FF;
+                border: none;
+                border-radius: 8px;
+                margin: 0px;
+                color: #FFFFFF;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                font-weight: 400;
+                padding: 8px 0;
+            }
+            QPushButton:hover {
+                background-color: #5A1AFF;
+            }
+        """
+
+        self.tab1_button.setStyleSheet(tab_selected_style)  # 默认选中第一个
+        self.tab2_button.setStyleSheet(tab_normal_style)
+        self.tab3_button.setStyleSheet(tab_normal_style)
+
+        # 连接点击事件
+        self.tab1_button.clicked.connect(lambda: self.select_tab(1))
+        self.tab2_button.clicked.connect(lambda: self.select_tab(2))
+        self.tab3_button.clicked.connect(lambda: self.select_tab(3))
+
+        self.tab_layout.addWidget(self.tab1_button)
+        self.tab_layout.addWidget(self.tab2_button)
+        self.tab_layout.addWidget(self.tab3_button)
+
+        self.section2_content_layout.addWidget(self.tab_widget)
+
+        # 下方：左右两个颜色区域
+        self.color_area_widget = QWidget()
+        self.color_area_layout = QHBoxLayout(self.color_area_widget)
+        self.color_area_layout.setContentsMargins(0, 0, 0, 0)
+        self.color_area_layout.setSpacing(10)
+
+        # 左侧颜色区域
+        self.left_color_area = QWidget()
+        self.left_color_area.setStyleSheet(u"border-radius: 8px;")
+        self.left_color_area_layout = QVBoxLayout(self.left_color_area)
+        # self.left_color_area_layout.setContentsMargins(15, 15, 15, 15)
+        self.left_color_area_layout.setSpacing(10)
+
+        # 左侧标题
+        self.left_title = QLabel("Left Area")
+        self.left_title.setStyleSheet(u"color: #99a1af; font-size: 14px; font-weight: bold; font-family: '微软雅黑';")
+        self.left_color_area_layout.addWidget(self.left_title)
+
+        # 左侧三个滑块控件
+        self.left_slider1 = self.create_slider_widget("X", 0, 100, 50, "%")
+        self.left_slider2 = self.create_slider_widget("Y", 0, 100, 50, "%")
+        self.left_slider3 = self.create_slider_widget("Z", 0, 100, 50, "%")
+
+        self.left_color_area_layout.addWidget(self.left_slider1)
+        self.left_color_area_layout.addWidget(self.left_slider2)
+        self.left_color_area_layout.addWidget(self.left_slider3)
+
+        # 左侧区域底部按钮
+        self.left_button = QPushButton("Surgery Analysis")
+        self.left_button.setFixedHeight(40)
+        self.left_button.setStyleSheet(u"""
+            QPushButton {
+                background-color: #D9CCFF;
+                border: none;
+                border-radius: 8px;
+                color: #4200FF;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                font-weight: 400;
+            }
+            QPushButton:hover {
+                background-color: #C9BCEF;
+            }
+            QPushButton:pressed {
+                background-color: #B9ACDF;
+            }
+        """)
+        self.left_color_area_layout.addWidget(self.left_button)
+        self.left_color_area_layout.addStretch()
+
+        # 右侧颜色区域
+        self.right_color_area = QWidget()
+        self.right_color_area.setStyleSheet(u"border-radius: 8px;")
+        self.right_color_area_layout = QVBoxLayout(self.right_color_area)
+        # self.right_color_area_layout.setContentsMargins(15, 15, 15, 15)
+        self.right_color_area_layout.setSpacing(10)
+
+        # 右侧标题
+        self.right_title = QLabel("Right Area")
+        self.right_title.setStyleSheet(u"color: #99a1af; font-size: 14px; font-weight: bold; font-family: '微软雅黑';")
+        self.right_color_area_layout.addWidget(self.right_title)
+
+        # 右侧三个滑块控件
+        self.right_slider1 = self.create_slider_widget("X", 0, 100, 50, "%")
+        self.right_slider2 = self.create_slider_widget("Y", 0, 100, 50, "%")
+        self.right_slider3 = self.create_slider_widget("Z", 0, 100, 50, "%")
+
+        self.right_color_area_layout.addWidget(self.right_slider1)
+        self.right_color_area_layout.addWidget(self.right_slider2)
+        self.right_color_area_layout.addWidget(self.right_slider3)
+
+        # 右侧区域底部按钮
+        self.right_button = QPushButton("Auto AR Nav")
+        self.right_button.setFixedHeight(40)
+        self.right_button.setStyleSheet(u"""
+            QPushButton {
+                background-color: #D9CCFF;
+                border: none;
+                border-radius: 8px;
+                color: #4200FF;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                font-weight: 400;
+            }
+            QPushButton:hover {
+                background-color: #C9BCEF;
+            }
+            QPushButton:pressed {
+                background-color: #B9ACDF;
+            }
+        """)
+        self.right_color_area_layout.addWidget(self.right_button)
+        self.right_color_area_layout.addStretch()
+
+        self.color_area_layout.addWidget(self.left_color_area)
+        self.color_area_layout.addWidget(self.right_color_area)
+
+        self.section2_content_layout.addWidget(self.color_area_widget)
 
         self.section2_layout.addWidget(self.section2_header)
         self.section2_layout.addWidget(self.section2_content)
@@ -659,6 +814,54 @@ class HomeUI(object):
         """创建滑轨和滑块控件"""
         return SliderWidget(label, min_value, max_value, default_value, unit)
 
+    def select_tab(self, tab_index):
+        """选择 tab"""
+        tab_normal_style = u"""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+                border-radius: 8px;
+                color: #404040;
+                margin: 0px;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                font-weight: 400;
+                padding: 8px 0;
+            }
+            QPushButton:hover {
+                background-color: #E8E8E8;
+            }
+        """
+        tab_selected_style = u"""
+            QPushButton {
+                background-color: #4200FF;
+                border: none;
+                border-radius: 8px;
+                color: #FFFFFF;
+                margin: 0px;
+                font-size: 14px;
+                font-family: "微软雅黑";
+                font-weight: 400;
+                padding: 8px 0;
+            }
+            QPushButton:hover {
+                background-color: #5A1AFF;
+            }
+        """
+
+        # 重置所有 tab 样式
+        self.tab1_button.setStyleSheet(tab_normal_style)
+        self.tab2_button.setStyleSheet(tab_normal_style)
+        self.tab3_button.setStyleSheet(tab_normal_style)
+
+        # 设置选中的 tab 样式
+        if tab_index == 1:
+            self.tab1_button.setStyleSheet(tab_selected_style)
+        elif tab_index == 2:
+            self.tab2_button.setStyleSheet(tab_selected_style)
+        elif tab_index == 3:
+            self.tab3_button.setStyleSheet(tab_selected_style)
+
     def toggle_section1(self):
         """切换 Section 1 的展开/折叠状态"""
         if self.section1_content.isVisible():
@@ -769,7 +972,7 @@ class HomeUI(object):
             """)
             self.section2_header.leaveEvent = lambda event: self.section2_header.setStyleSheet(u"""
                 border-radius: 0;
-                border-bottom: none;
+                border-bottom: 1px solid #E8E8E8;
                 border-top: none;
                 border-left: none;
                 border-right: none;
@@ -833,7 +1036,7 @@ class HomeUI(object):
             """)
             self.section3_header.leaveEvent = lambda event: self.section3_header.setStyleSheet(u"""
                 border-radius: 0;
-                border-bottom: none;
+                border-bottom: 1px solid #E8E8E8;
                 border-top: none;
                 border-left: none;
                 border-right: none;
@@ -897,7 +1100,7 @@ class HomeUI(object):
             """)
             self.section4_header.leaveEvent = lambda event: self.section4_header.setStyleSheet(u"""
                 border-radius: 0;
-                border-bottom: none;
+                border-bottom: 1px solid #E8E8E8;
                 border-top: none;
                 border-left: none;
                 border-right: none;
